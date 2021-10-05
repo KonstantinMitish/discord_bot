@@ -2,7 +2,7 @@
   "name": "discord_bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.coffee",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +16,7 @@
     "url": "https://github.com/KonstantinMitish/discord_bot/issues"
   },
   "homepage": "https://github.com/KonstantinMitish/discord_bot#readme",
-  "devDependencies": {
-    "coffee-script": "^1.12.7"
+  "dependencies": {
+    "coffeescript": "^2.6.1"
   }
 }
