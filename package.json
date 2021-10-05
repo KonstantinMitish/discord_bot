@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/KonstantinMitish/discord_bot#readme",
   "devDependencies": {
-    "coffeescript": "^2.6.1"
+    "coffee-script": "^1.12.7"
   }
 }
