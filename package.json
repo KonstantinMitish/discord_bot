@@ -1,0 +1,22 @@
+{
+  "name": "discord_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KonstantinMitish/discord_bot.git"
+  },
+  "author": "KM6",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KonstantinMitish/discord_bot/issues"
+  },
+  "homepage": "https://github.com/KonstantinMitish/discord_bot#readme",
+  "devDependencies": {
+    "coffeescript": "^2.6.1"
+  }
+}
