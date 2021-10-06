@@ -27,6 +27,7 @@
     "discord.js": "^13.2.0",
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
-    "q": "^1.5.1"
+    "q": "^1.5.1",
+    "youtube-audio-stream": "^0.3.24"
   }
 }

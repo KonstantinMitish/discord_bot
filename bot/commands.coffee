@@ -2,6 +2,8 @@ Q = require 'q'
 fs = require 'fs'
 path = require 'path'
 voice = require '@discordjs/voice'
+stream = require('youtube-audio-stream')
+
 module.exports =
     ping: 
         argc: 0
@@ -14,12 +16,11 @@ module.exports =
                 defer.reject e
             defer.promise
     play:
-        argc: 0
+        argc: 1
         call: (message, argv) ->
             defer = Q.defer()
             voiceChannel = 
             player = voice.createAudioPlayer()
-            resource = voice.createAudioResource path.join(__dirname, '../resources/', "jojo.mp3")
 
             connection = voice.joinVoiceChannel {
                 channelId: message.member.voice.channelId
@@ -31,7 +32,11 @@ module.exports =
               
             player.on "debug", (info)->
                 console.log info 
-                
+
+            stream = stream(argv[1])
+
+            resource = voice.createAudioResource stream
+
             player.play(resource)
             subscription = connection.subscribe(player)
             defer.resolve {}
