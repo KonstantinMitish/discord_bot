@@ -15,6 +15,9 @@
   "bugs": {
     "url": "https://github.com/KonstantinMitish/discord_bot/issues"
   },
+  "engines": {
+    "node": "16.3.0"
+  },
   "homepage": "https://github.com/KonstantinMitish/discord_bot#readme",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
