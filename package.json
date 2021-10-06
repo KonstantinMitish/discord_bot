@@ -28,6 +28,8 @@
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
     "q": "^1.5.1",
-    "youtube-audio-stream": "^0.3.24"
+    "queue": "^6.0.2",
+    "youtube-audio-stream": "^0.3.24",
+    "youtube-playlist-summary": "^2.1.6"
   }
 }

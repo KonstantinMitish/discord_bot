@@ -29,12 +29,16 @@ bot.on 'messageCreate', (message) ->
 
   argv = text.split " "
   argv[0] = argv[0].slice 1, argv[0].size
-  handle = commands[argv[0]]
+
+  handle = null
+  for name, c of commands
+    if argv[0] in c.alias
+      handle = c
 
   if !handle
     console.log "no handle for #{argv[0]}"
     return
-  if handle.argc > argv.size + 1
+  if handle.argc > argv.length - 1
     console.log "not enough args for #{argv[0]}"
     return
   handle.call message, argv

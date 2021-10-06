@@ -1,11 +1,13 @@
 Q = require 'q'
+channels = require './channels'
+youtube = require './youtube'
 fs = require 'fs'
 path = require 'path'
-voice = require '@discordjs/voice'
-stream = require('youtube-audio-stream')
+
 
 module.exports =
     ping: 
+        alias: ['ping']
         argc: 0
         call: (message, argv) ->
             defer = Q.defer()
@@ -16,28 +18,38 @@ module.exports =
                 defer.reject e
             defer.promise
     play:
+        alias: ['play', 'p']
         argc: 1
         call: (message, argv) ->
             defer = Q.defer()
-            voiceChannel = 
-            player = voice.createAudioPlayer()
-
-            connection = voice.joinVoiceChannel {
-                channelId: message.member.voice.channelId
-                guildId: message.member.voice.guild.id
-                adapterCreator: message.member.voice.guild.voiceAdapterCreator
-            }
-            player.on voice.AudioPlayerStatus.Playing, ()->
-                console.log('The audio player has started playing!')
-              
-            player.on "debug", (info)->
-                console.log info 
-
-            stream = stream(argv[1])
-
-            resource = voice.createAudioResource stream
-
-            player.play(resource)
-            subscription = connection.subscribe(player)
+            youtube argv[1]
+            .then (playlist) ->
+                c = channels message
+                m = ""
+                for track, i in playlist
+                    c.add track.desc, track.reader
+                    if i < 10
+                        m += track.desc + "\n"
+                message.channel.send m
+                defer.resolve {}
+            .catch (e) ->
+                defer.reject e
+            defer.promise
+    clear:
+        alias: ['clear', 'c']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels message.member.voice.guild.id, message.member.voice.channelId, message.member.voice.guild.voiceAdapterCreator
+            c.clear()
+            defer.resolve {}
+            defer.promise
+    next:
+        alias: ['n', 'next', 's', 'skip']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels message.member.voice.guild.id, message.member.voice.channelId, message.member.voice.guild.voiceAdapterCreator
+            c.next()
             defer.resolve {}
             defer.promise
