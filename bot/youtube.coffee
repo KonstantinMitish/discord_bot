@@ -1,13 +1,13 @@
 Q = require 'q'
-ytplaylist = require 'youtube-playlist-summary'
-ytstream = require 'youtube-audio-stream'
-
-ytconfig = 
-    GOOGLE_API_KEY: process.env.GOOGLE_KEY
-    PLAYLIST_ITEM_KEY: ['publishedAt', 'title', 'description', 'videoId', 'videoUrl']
+fs = require 'fs'
+ytdl = require 'ytdl-core'
+ytpl = require 'ytpl'
 
 loader = (url) -> () ->
-    ytstream(url)
+    ytdl url, {
+        filter: 'audioonly'
+        quality: 'highestaudio'
+    }
 
 module.exports = (url) ->
     defer = Q.defer()
@@ -18,16 +18,23 @@ module.exports = (url) ->
         return defer.promise
     type = groups[4] || "watch"
     id = groups[7]
-    result = []
+    result = 
+        items: []
     if type == 'playlist'
-        ps = new ytplaylist(ytconfig)
-        ps.getPlaylistItems(id)
+        ytpl(url, {limit: Infinity})
         .then (pl) ->
-            m = ""
+            result.title = pl.title
+            result.url = pl.url
+            result.image = pl.bestThumbnail.url
             for i in pl.items
-                result.push {
-                    desc: i.title
-                    reader: loader(i.videoUrl)
+                if !i.isPlayable
+                    continue
+                result.items.push {
+                    title: i.title
+                    url: i.url
+                    duration: i.duration
+                    image: i.bestThumbnail.url
+                    reader: loader(i.url)
                 }
             defer.resolve result
         .catch (e) ->

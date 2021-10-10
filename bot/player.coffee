@@ -29,6 +29,9 @@ create = (channelId, guildId, voiceAdapterCreator) ->
             player.play(resource)
         pause: () ->
             player.pause()
+        stop: () ->
+            player.stop()
+            connection.destroy()
         unpause: () ->
             player.unpause()
         addCallback: (type, callback) ->

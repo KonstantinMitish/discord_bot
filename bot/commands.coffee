@@ -1,4 +1,5 @@
 Q = require 'q'
+
 channels = require './channels'
 youtube = require './youtube'
 fs = require 'fs'
@@ -24,13 +25,12 @@ module.exports =
             defer = Q.defer()
             youtube argv[1]
             .then (playlist) ->
-                c = channels message
-                m = ""
-                for track, i in playlist
-                    c.add track.desc, track.reader
-                    if i < 10
-                        m += track.desc + "\n"
-                message.channel.send m
+                c = channels.get message
+                if !c
+                    defer.resolve {}
+                    return defer.promise
+                c.add playlist.items
+                c.play()
                 defer.resolve {}
             .catch (e) ->
                 defer.reject e
@@ -40,16 +40,64 @@ module.exports =
         argc: 0
         call: (message, argv) ->
             defer = Q.defer()
-            c = channels message.member.voice.guild.id, message.member.voice.channelId, message.member.voice.guild.voiceAdapterCreator
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
             c.clear()
             defer.resolve {}
             defer.promise
+
+    stop:
+        alias: ['leave', 'stop']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
+
+            c.stop()
+            channels.remove message
+            defer.resolve {}
+            defer.promise
+
+    pause:
+        alias: ['pause']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
+            c.pause()
+            defer.resolve {}
+            defer.promise
+
+    unpause:
+        alias: ['unpause']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
+            c.unpause()
+            defer.resolve {}
+            defer.promise
+
     next:
         alias: ['n', 'next', 's', 'skip']
         argc: 0
         call: (message, argv) ->
             defer = Q.defer()
-            c = channels message.member.voice.guild.id, message.member.voice.channelId, message.member.voice.guild.voiceAdapterCreator
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
             c.next()
             defer.resolve {}
             defer.promise

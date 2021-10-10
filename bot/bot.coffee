@@ -1,5 +1,5 @@
 fs = require 'fs'
-{ Client, Intents }  = require 'discord.js'
+discord = require 'discord.js'
 commands = require './commands'
 
 config = require '../config.json'
@@ -7,11 +7,11 @@ token = process.env.TOKEN
 prefix = config.prefix
 clientId = config.clientId
 
-bot = client = new Client { 
+bot = client = new discord.Client { 
   intents: [
-    Intents.FLAGS.GUILDS, 
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MESSAGES] 
+    discord.Intents.FLAGS.GUILDS, 
+    discord.Intents.FLAGS.GUILD_VOICE_STATES,
+    discord.Intents.FLAGS.GUILD_MESSAGES] 
 }
 
 bot.once "ready", () ->
