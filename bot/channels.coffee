@@ -33,7 +33,7 @@ create = (player, channel) ->
         player.unpause()
 
     clear = () ->
-        q.end()
+        q = []
         update()
         stop()
 
@@ -92,7 +92,6 @@ create = (player, channel) ->
         stop: stop
 
 get = (message) ->
-    fs.writeFileSync "test.json", JSON.stringify message, null, 4
     if !(message?.member?.voice?.channelId)
         return
     channels[message.member.voice.guild.id] ?= {}
