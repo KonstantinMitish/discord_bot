@@ -45,6 +45,6 @@ bot.on 'messageCreate', (message) ->
   .then (data) ->
     console.log "executed command #{argv[0]}"
   .catch (e) ->
-    console.log "ERROR in command #{argv[0]}\n#{e}"
+    console.log "ERROR in command #{argv[0]}\n#{JSON.stringify e}"
 
 bot.login token

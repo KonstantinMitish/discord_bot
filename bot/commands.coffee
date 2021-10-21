@@ -1,7 +1,8 @@
 Q = require 'q'
 
 channels = require './channels'
-youtube = require './youtube'
+youtube = require './streamers/youtube'
+vk = require './streamers/vk'
 fs = require 'fs'
 path = require 'path'
 
@@ -35,6 +36,17 @@ module.exports =
             .catch (e) ->
                 defer.reject e
             defer.promise
+    vk: 
+        alias: ['vk']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            vk 123
+            .then (res) ->
+                defer.resolve res
+            .catch (e) ->
+                defer.reject e
+            defer.promise
     clear:
         alias: ['clear', 'c']
         argc: 0
@@ -45,6 +57,19 @@ module.exports =
                 defer.resolve {}
                 return defer.promise
             c.clear()
+            defer.resolve {}
+            defer.promise
+
+    shuffle:
+        alias: ['shuffle', 'random']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            c = channels.get message
+            if !c
+                defer.resolve {}
+                return defer.promise
+            c.shuffle()
             defer.resolve {}
             defer.promise
 

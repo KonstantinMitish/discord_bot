@@ -5,13 +5,16 @@ player = require './player'
 
 channels = {}
 
-create = (player, channel) ->
+create = (player_creator, channel) ->
     q = []
+    original_q = undefined
     isPlaying = false
     current = {}
     message = undefined
+    p = undefined
     getPlayer = () ->
-        player
+        p ?= player_creator()
+        p
 
     add = (track) ->
         if !_.isArray track
@@ -23,14 +26,21 @@ create = (player, channel) ->
         if !isPlaying
             next()
 
+    shuffle = () ->
+        q = _.shuffle q
+        update()
+
     stop = () ->
-        player.stop()
+        if p
+            getPlayer().stop()
 
     pause = () ->
-        player.pause()
+        if p
+            getPlayer().pause()
 
     unpause = () ->
-        player.unpause()
+        if p
+            getPlayer().unpause()
 
     clear = () ->
         q = []
@@ -45,13 +55,13 @@ create = (player, channel) ->
             return
         current = n
         update()
-        player.play n.reader()
+        getPlayer().play n.reader()
 
-    player.addCallback "stop", ()->
+    getPlayer().addCallback "stop", ()->
         isPlaying = false
         next()
         
-    player.addCallback "error", (e)->
+    getPlayer().addCallback "error", (e)->
         isPlaying = false
         update()
         next()
@@ -90,12 +100,13 @@ create = (player, channel) ->
         pause: pause
         unpause: unpause
         stop: stop
+        shuffle: shuffle
 
 get = (message) ->
     if !(message?.member?.voice?.channelId)
         return
     channels[message.member.voice.guild.id] ?= {}
-    channels[message.member.voice.guild.id][message.member.voice.channelId] ?= create player(message.member.voice.channelId, message.member.voice.guild.id, message.member.voice.guild.voiceAdapterCreator), message.channel
+    channels[message.member.voice.guild.id][message.member.voice.channelId] ?= create((() -> player(message.member.voice.channelId, message.member.voice.guild.id, message.member.voice.guild.voiceAdapterCreator)), message.channel)
     channels[message.member.voice.guild.id][message.member.voice.channelId]
 
 remove = (message) ->
