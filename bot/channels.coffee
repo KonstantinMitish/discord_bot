@@ -7,7 +7,7 @@ channels = {}
 
 create = (player_creator, channel) ->
     q = []
-    original_q = undefined
+    q_top = []
     isPlaying = false
     current = {}
     message = undefined
@@ -21,6 +21,12 @@ create = (player_creator, channel) ->
             q.push track
             return
         q = q.concat track
+
+    addnext = () ->
+        if !_.isArray track
+            q_top.push track
+            return
+        q_top = q_top.concat track
 
     play = () ->
         if !isPlaying
@@ -44,13 +50,19 @@ create = (player_creator, channel) ->
 
     clear = () ->
         q = []
+        q_top = []
         update()
         stop()
 
     next = () ->
         isPlaying = true
-        n = q.shift()
-        if !n
+        
+        n = undefined
+        if !_.isEmpty q_top
+            n = q_top.shift()
+        else if !_.isEmpty q
+            n = q.shift()
+        else
             stop()
             return
         current = n
@@ -74,6 +86,8 @@ create = (player_creator, channel) ->
         .setURL current.url
         .setThumbnail current.image
         .setDescription "Queue:"
+        for i in q_top
+            embeds.addFields {name: i.title, value: '\u200B'}
         for i in [0..Math.min(q.length, 10)]
             embeds.addFields {name: q[i].title, value: '\u200B'}
         console.log q.length

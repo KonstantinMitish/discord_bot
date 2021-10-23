@@ -36,6 +36,25 @@ module.exports =
             .catch (e) ->
                 defer.reject e
             defer.promise
+
+    playnext:
+        alias: ['playnext', 'pn']
+        argc: 1
+        call: (message, argv) ->
+            defer = Q.defer()
+            youtube argv[1]
+            .then (playlist) ->
+                c = channels.get message
+                if !c
+                    defer.resolve {}
+                    return defer.promise
+                c.addnext playlist.items
+                c.play()
+                defer.resolve {}
+            .catch (e) ->
+                defer.reject e
+            defer.promise
+
     vk: 
         alias: ['vk']
         argc: 0
