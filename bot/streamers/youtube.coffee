@@ -40,9 +40,12 @@ module.exports = (url) ->
         .catch (e) ->
             defer.reject e
         return defer.promise
-    result.push {
-        desc: "TODO"
-        reader: loader(url)
+    result.items.push {
+        title: "TODO"
+        url: url
+        duration: 1337
+        image: 'https://13hgames.net/13hmail.png'
+        reader: loader(i.url)
     }
     defer.resolve result
     defer.promise
