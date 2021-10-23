@@ -45,7 +45,7 @@ module.exports = (url) ->
         url: url
         duration: 1337
         image: 'https://13hgames.net/13hmail.png'
-        reader: loader(i.url)
+        reader: loader(url)
     }
     defer.resolve result
     defer.promise
