@@ -67,7 +67,7 @@ module.exports =
                 defer.reject e
             defer.promise
     clear:
-        alias: ['clear', 'c']
+        alias: ['clear', 'c', 'leave', 'stop']
         argc: 0
         call: (message, argv) ->
             defer = Q.defer()
@@ -80,7 +80,7 @@ module.exports =
             defer.promise
 
     shuffle:
-        alias: ['shuffle', 'random']
+        alias: ['shuffle', 'random', 'ыргааду', 'shuffl', 'shuffel', 'shullfe', 'shuflle']
         argc: 0
         call: (message, argv) ->
             defer = Q.defer()
@@ -89,21 +89,6 @@ module.exports =
                 defer.resolve {}
                 return defer.promise
             c.shuffle()
-            defer.resolve {}
-            defer.promise
-
-    stop:
-        alias: ['leave', 'stop']
-        argc: 0
-        call: (message, argv) ->
-            defer = Q.defer()
-            c = channels.get message
-            if !c
-                defer.resolve {}
-                return defer.promise
-
-            c.stop()
-            channels.remove message
             defer.resolve {}
             defer.promise
 
@@ -145,3 +130,14 @@ module.exports =
             c.next()
             defer.resolve {}
             defer.promise
+
+    check:
+        alias: ['debug_check']
+        argc: 0
+        call: (message, argv) ->
+            defer = Q.defer()
+            channels.check message.guildId
+            defer.resolve {}
+            defer.promise
+        syscall: (guildId) ->
+            channels.check guildId

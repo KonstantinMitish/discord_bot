@@ -1,15 +1,17 @@
 _ = require 'lodash'
 fs = require 'fs'
+Mutex = require('async-mutex').Mutex;
 discord = require 'discord.js'
 player = require './player'
 
 channels = {}
 
-create = (player_creator, channel) ->
+create = (player_creator, player_destroyer, channel, voice) ->
     q = []
+    mutex = new Mutex()
     q_top = []
     isPlaying = false
-    current = {}
+    current = undefined
     message = undefined
     p = undefined
     getPlayer = () ->
@@ -21,12 +23,14 @@ create = (player_creator, channel) ->
             q.push track
             return
         q = q.concat track
+        update()
 
-    addnext = () ->
+    addnext = (track) ->
         if !_.isArray track
             q_top.push track
             return
         q_top = q_top.concat track
+        update()
 
     play = () ->
         if !isPlaying
@@ -39,6 +43,7 @@ create = (player_creator, channel) ->
     stop = () ->
         if p
             getPlayer().stop()
+            player_destroyer()
 
     pause = () ->
         if p
@@ -51,19 +56,19 @@ create = (player_creator, channel) ->
     clear = () ->
         q = []
         q_top = []
+        current = undefined
         update()
         stop()
 
     next = () ->
         isPlaying = true
-        
         n = undefined
         if !_.isEmpty q_top
             n = q_top.shift()
         else if !_.isEmpty q
             n = q.shift()
         else
-            stop()
+            clear()
             return
         current = n
         update()
@@ -86,46 +91,68 @@ create = (player_creator, channel) ->
         .setURL current.url
         .setThumbnail current.image
         .setDescription "Queue:"
+        counter = 0
         for i in q_top
+            if ++counter > 10
+                break
             embeds.addFields {name: i.title, value: '\u200B'}
-        for i in [0..Math.min(q.length, 10)]
-            embeds.addFields {name: q[i].title, value: '\u200B'}
-        console.log q.length
+        for i in q
+            if ++counter > 10
+                break
+            embeds.addFields {name: i.title, value: '\u200B'}
+
         if q.length > 10
             embeds.setFooter "and #{q.length - 10} more"
         embeds: [embeds]
 
     update = () ->
-        if message && channel.lastMessageId == message.id
-            message.edit createMessage()
-            return
-        if message
-            message.delete()
-        channel.send createMessage()
-        .then (m) ->
-            message = m
+        mutex
+        .runExclusive () ->    
+            if message && channel.lastMessageId == message.id && current
+                message.edit createMessage()
+                return
+            if message
+                message.delete()
+            if current
+                message = await channel.send createMessage()
+
+    check = () ->
+        fs.writeFileSync "test.json", JSON.stringify voice.members, null, 4
+        flag = false
+        voice.members.each (member, id) ->
+            if !member.user.bot
+                flag = true
+        !flag
 
     return
         getPlayer: getPlayer
         add: add
+        addnext: addnext
         next: next
         clear: clear
         play: play
         pause: pause
         unpause: unpause
-        stop: stop
         shuffle: shuffle
+        check: check 
+
+remove = (message) ->
+    channels[message.member.voice.guild.id] = undefined
 
 get = (message) ->
     if !(message?.member?.voice?.channelId)
         return
-    channels[message.member.voice.guild.id] ?= {}
-    channels[message.member.voice.guild.id][message.member.voice.channelId] ?= create((() -> player(message.member.voice.channelId, message.member.voice.guild.id, message.member.voice.guild.voiceAdapterCreator)), message.channel)
-    channels[message.member.voice.guild.id][message.member.voice.channelId]
+    channels[message.member.voice.guild.id] ?= create((() -> player(message.member.voice.channelId, message.member.voice.guild.id, message.member.voice.guild.voiceAdapterCreator)), (() -> remove(message)), message.channel, message.member.voice.channel)
+    channels[message.member.voice.guild.id]
 
-remove = (message) ->
-    channels[message.member.voice.guild.id][message.member.voice.channelId] = undefined
+check = (guildId) ->
+    c = channels[guildId]
+    if c && c.check()
+        c.clear()
+        channels[guildId] = undefined
+    
 
 module.exports = 
     get: get
     remove: remove
+    check: check

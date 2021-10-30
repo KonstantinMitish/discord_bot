@@ -5,7 +5,6 @@ commands = require './commands'
 config = require '../config.json'
 token = process.env.TOKEN
 prefix = config.prefix
-clientId = config.clientId
 
 bot = client = new discord.Client { 
   intents: [
@@ -19,6 +18,10 @@ bot.once "ready", () ->
 
 bot.on "debug", (info) ->
   console.log info
+
+bot.on "voiceStateUpdate", (oldState, newState) ->
+  console.log "voiceStateUpdate"
+  commands.check.syscall oldState.guild.id
 
 bot.on 'messageCreate', (message) ->
   if message.author.username == bot.user.username || message.author.discriminator == bot.user.discriminator
