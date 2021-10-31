@@ -4,10 +4,14 @@ ytdl = require 'ytdl-core'
 ytpl = require 'ytpl'
 
 loader = (url) -> () ->
-    ytdl url, {
+    stream = ytdl url, {
         filter: 'audioonly'
         quality: 'highestaudio'
     }
+    stream.on "error", (err) -> 
+        console.log "ytdl ERROR: #{err.message || JSON.stringify err}"
+    stream
+
 
 module.exports = (url) ->
     defer = Q.defer()
