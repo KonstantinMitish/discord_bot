@@ -24,7 +24,6 @@
     "@discordjs/voice": "^0.6.0",
     "async-mutex": "^0.3.2",
     "axios": "^0.23.0",
-    "coffeescript": "^2.6.1",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.2.0",
     "ffmpeg-static": "^4.4.0",
